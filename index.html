@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Kartu pos kenangan">
+<style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Kartu Pos Kenangan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;700&family=Young+Serif&display=swap" rel="stylesheet">
+<style>
+/* Layout: satu kartu pos besar bergaris pos udara di atas, lalu lembar kenangan, surat, permainan, dan kupon yang bergulir ke bawah. */
+:root {
+  --bg: #EEF0F7;
+  --card: #FBFAFE;
+  --ink: #1B2250;
+  --muted: #565C85;
+  --stamp: #D9304F;
+  --on-stamp: #FFFFFF;
+  --sea: #17797A;
+  --glow: #C98A00;
+  --petal: #F2A0B3;
+  --line: #C9CDE3;
+  --shadow: rgba(27, 34, 80, 0.16);
+  --air: repeating-linear-gradient(135deg, var(--stamp) 0 9px, var(--card) 9px 18px, var(--sea) 18px 27px, var(--card) 27px 36px);
+  --f-display: 'Young Serif', Georgia, serif;
+  --f-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-hand: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
+  --f-mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101326; --card: #181C38; --ink: #ECEBF8; --muted: #A3A8CF; --stamp: #FF6B85; --on-stamp: #230A12;
+    --sea: #4FD1C5; --glow: #FFD166; --petal: #F08AA0; --line: #2E3460; --shadow: rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101326; --card: #181C38; --ink: #ECEBF8; --muted: #A3A8CF; --stamp: #FF6B85; --on-stamp: #230A12;
+  --sea: #4FD1C5; --glow: #FFD166; --petal: #F08AA0; --line: #2E3460; --shadow: rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 1rem/1.6 var(--f-body); }
+h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+
+#fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+
+/* bar atas */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar-in { display: flex; align-items: center; gap: 12px; max-width: 1040px; margin: 0 auto; padding: 10px 16px; }
+.bar-l { flex: none; font: 500 .7rem var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.chips { display: flex; gap: 8px; flex: 1; min-width: 0; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip, .tbtn { flex: none; font-size: .9rem; padding: .4rem .85rem; border: 1px solid var(--line); border-radius: 999px; background: var(--card); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.tbtn { flex: none; border-radius: 6px; font-size: .85rem; }
+
+.wrap { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 8px 48px; }
+
+/* kartu pos */
+.kartu { background: var(--card); border: 1px solid var(--line); box-shadow: 0 18px 40px -22px var(--shadow); margin-top: 24px; }
+.kartu::before { content: ""; display: block; height: 10px; background: var(--air); }
+.kartu-g { display: grid; grid-template-columns: 1.25fr 1fr; }
+.kiri { padding: 28px clamp(18px, 4vw, 38px) 34px; min-width: 0; }
+.kanan { position: relative; display: flex; flex-direction: column; gap: 22px; padding: 22px clamp(18px, 3vw, 32px) 30px; border-left: 2px dashed var(--line); min-width: 0; }
+.label { font: 500 .72rem var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--stamp); }
+.kiri h1 { font-family: var(--f-display); font-size: clamp(2.6rem, 9vw, 5.2rem); line-height: 1; margin: 12px 0 18px; overflow-wrap: anywhere; }
+.lead { max-width: 46ch; color: var(--muted); font-size: 1.05rem; }
+.top-r { display: flex; flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; }
+.stamp { flex: none; width: 88px; aspect-ratio: 3 / 4; border: 2px dashed var(--stamp); padding: 5px; display: flex; }
+.stamp-in { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8px 2px; background: var(--stamp); color: var(--on-stamp); font: 500 .5rem var(--f-mono); letter-spacing: .12em; }
+.stamp-in svg { width: 38px; height: 38px; fill: currentColor; }
+.pm { position: relative; z-index: 2; width: 200px; max-width: 78%; margin-right: -34px; transform: rotate(-8deg); color: var(--stamp); opacity: .88; }
+.pm text { fill: currentColor; font-family: var(--f-mono); }
+.alamat { display: flex; flex-direction: column; font: 700 1.5rem/2.2rem var(--f-hand); }
+.alamat p { display: flex; gap: 10px; min-height: 2.2rem; border-bottom: 1.5px solid var(--line); overflow-wrap: anywhere; }
+.alamat span { flex: none; align-self: flex-end; padding-bottom: 6px; font: 500 .66rem var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+@media (max-width: 700px) {
+  .kartu-g { grid-template-columns: 1fr; }
+  .kanan { border-left: 0; border-top: 2px dashed var(--line); }
+}
+
+/* penghitung */
+.hitung-w { margin-top: 20px; }
+.hitung-w .label { color: var(--muted); }
+.hitung { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 8px; border: 1px solid var(--line); background: var(--card); }
+.hitung div { padding: 14px 6px; text-align: center; border-right: 1px solid var(--line); min-width: 0; }
+.hitung div:last-child { border-right: 0; }
+.hitung b { display: block; font: 400 clamp(1.5rem, 6vw, 2.6rem)/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
+.hitung small { font: 500 .66rem var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+/* seksi */
+.sec { padding-block: 56px 8px; }
+.sec h2 { font: 400 clamp(1.8rem, 5vw, 2.8rem)/1.1 var(--f-display); margin-bottom: 8px; }
+.sub { max-width: 60ch; margin-bottom: 28px; color: var(--muted); }
+
+/* kenangan */
+.tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 44px; }
+.tl li { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+.tl-t { min-width: 0; }
+.tl-d { font: 500 .75rem var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--stamp); margin-bottom: 6px; }
+.tl h3 { font: 400 1.6rem/1.2 var(--f-display); margin-bottom: 8px; }
+.tl-t p:last-child { color: var(--muted); max-width: 46ch; }
+.foto { margin: 0; padding: 10px 10px 8px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 14px 28px -18px var(--shadow); transform: rotate(var(--tilt, 0deg)); min-width: 0; }
+.foto { position: relative; }
+.foto img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; cursor: zoom-in; background: var(--line); }
+.galeri { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 14px; min-width: 0; }
+.galeri .foto:first-child { grid-column: 1 / -1; }
+.galeri .foto:not(:first-child) { padding: 6px; }
+.galeri .foto:not(:first-child) img { aspect-ratio: 1 / 1; }
+.galeri .foto:nth-child(odd) { --tilt: -1.4deg; }
+.galeri .foto:nth-child(even) { --tilt: 1.4deg; }
+.foto-ph { display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; text-align: center; padding: 12px; font: 500 .75rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: repeating-linear-gradient(135deg, var(--line) 0 2px, transparent 2px 12px); }
+.foto figcaption { padding-top: 8px; font: 500 1.35rem/1.2 var(--f-hand); color: var(--ink); }
+@media (min-width: 761px) { .tl li:nth-child(even) .galeri { order: -1; } }
+.hapus { position: absolute; top: 14px; right: 14px; padding: .25rem .6rem; border: 0; border-radius: 4px; background: var(--ink); color: var(--bg); font: 500 .75rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.galeri .foto:not(:first-child) .hapus { top: 10px; right: 10px; }
+.tambah { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 128px; padding: 12px; border: 2px dashed var(--stamp); border-radius: 6px; background: transparent; color: var(--stamp); font-weight: 700; cursor: pointer; }
+.galeri > .tambah:first-child { grid-column: 1 / -1; min-height: 160px; }
+.tambah small { font: 500 .7rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.editbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--card); border-top: 2px solid var(--stamp); padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.editbar-in { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: 1040px; margin: 0 auto; }
+.editbar p { flex: 1 1 220px; min-width: 0; font-size: .9rem; }
+body.editing .wrap { padding-bottom: 170px; }
+.lb { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px; background: rgba(8, 10, 24, .92); }
+.lb img { max-width: 100%; max-height: 76vh; object-fit: contain; }
+.lb-bar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; color: #ECEBF8; font: 500 .8rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.lb .btn.ghost { color: #ECEBF8; border-color: #565C85; }
+@media (max-width: 760px) { .tl li { grid-template-columns: 1fr; gap: 18px; } }
+
+/* surat */
+.surat { position: relative; max-width: 640px; margin-inline: auto; padding: 8px 24px 20px 56px; background-color: var(--card); background-image: linear-gradient(to bottom, transparent 1.95rem, var(--line) 1.95rem); background-size: 100% 2rem; border: 1px solid var(--line); box-shadow: 0 18px 36px -24px var(--shadow); }
+.surat::before { content: ""; position: absolute; top: 0; bottom: 0; left: 40px; width: 2px; background: var(--stamp); opacity: .55; }
+.surat p { font: 500 1.5rem/2rem var(--f-hand); margin: 0; }
+.surat p + p { margin-top: 2rem; }
+.surat .ttd { margin-top: 2rem; text-align: right; font-weight: 700; }
+
+/* permainan */
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding: 2px; }
+.tab { flex: none; padding: .6rem 1rem; border: 1px solid var(--line); border-radius: 6px; background: var(--card); cursor: pointer; font-weight: 500; }
+.tab[aria-selected="true"] { background: var(--stamp); border-color: var(--stamp); color: var(--on-stamp); }
+.panel { max-width: 440px; }
+.panel h3 { font: 400 1.5rem/1.2 var(--f-display); margin-bottom: 4px; }
+.panel .how { color: var(--muted); margin-bottom: 16px; }
+.btn { padding: .7rem 1.2rem; border: 0; border-radius: 6px; background: var(--stamp); color: var(--on-stamp); font-weight: 700; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn:disabled { opacity: .5; cursor: default; }
+.status { margin-top: 14px; min-height: 3.2em; font-weight: 500; }
+.hud { display: flex; justify-content: space-between; margin-bottom: 8px; font: 500 .8rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+
+.mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.mcard { aspect-ratio: 3 / 4; padding: 0; border: 0; background: none; perspective: 600px; cursor: pointer; }
+.mcard .in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .45s; }
+.mcard.open .in, .mcard.done .in { transform: rotateY(180deg); }
+.mcard .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 6px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.mcard .back { background: var(--air); }
+.mcard .back::after { content: "?"; display: flex; align-items: center; justify-content: center; position: absolute; inset: 8px; background: var(--card); border-radius: 3px; font: 400 1.4rem var(--f-display); color: var(--ink); }
+.mcard .front { transform: rotateY(180deg); background: var(--card); border: 1px solid var(--line); font-size: 1.9rem; line-height: 1.1; }
+.mcard .front small { font: 500 .6rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.mcard.done .front { border-color: var(--sea); }
+
+#game { display: block; width: 100%; height: auto; aspect-ratio: 3 / 4; background: var(--card); border: 1px solid var(--line); touch-action: none; cursor: ew-resize; }
+.g-act { display: flex; gap: 10px; margin-top: 12px; }
+
+.opts { display: flex; flex-direction: column; gap: 10px; margin-block: 14px; }
+.opt { text-align: left; padding: .8rem 1rem; border: 1px solid var(--line); border-radius: 6px; background: var(--card); cursor: pointer; }
+.opt:disabled { cursor: default; }
+.opt.ok { border-color: var(--sea); background: var(--sea); color: var(--bg); }
+.opt.no { border-color: var(--stamp); text-decoration: line-through; color: var(--muted); }
+.q-meta { font: 500 .72rem var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--stamp); margin-bottom: 6px; }
+.panel h4 { font: 400 1.25rem/1.3 var(--f-display); }
+.q-fb { min-height: 3em; margin-bottom: 10px; }
+.big { font: 400 2.6rem/1 var(--f-display); font-variant-numeric: tabular-nums; margin-block: 6px 10px; }
+
+/* kupon */
+.kupon { display: grid; grid-template-columns: 1fr auto; max-width: 640px; background: var(--card); border: 2px dashed var(--line); }
+.k-l { padding: 22px 24px; min-width: 0; }
+.k-lab { font: 500 .72rem var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.kupon h3 { font: 400 1.6rem/1.2 var(--f-display); margin-block: 6px 8px; }
+.k-r { display: flex; align-items: center; justify-content: center; padding: 16px 22px; border-left: 2px dashed var(--line); font: 500 .75rem var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); writing-mode: vertical-rl; }
+.kupon[data-state="terbuka"] { border-color: var(--stamp); }
+.kupon[data-state="terbuka"] .k-r { color: var(--stamp); border-color: var(--stamp); }
+
+.foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; color: var(--muted); font: 500 .75rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div class="bar">
+  <div class="bar-in">
+    <span class="bar-l">Efek latar</span>
+    <div class="chips" id="chips" role="group" aria-label="Pilih efek latar">
+      <button class="chip" type="button" data-fx="petals" aria-pressed="false">Kelopak</button>
+      <button class="chip" type="button" data-fx="fireflies" aria-pressed="false">Kunang-kunang</button>
+      <button class="chip" type="button" data-fx="hearts" aria-pressed="false">Hati melayang</button>
+      <button class="chip" type="button" data-fx="stars" aria-pressed="false">Bintang jatuh</button>
+      <button class="chip" type="button" data-fx="confetti" aria-pressed="false">Konfeti</button>
+      <button class="chip" type="button" data-fx="none" aria-pressed="false">Tanpa efek</button>
+    </div>
+    <button class="tbtn" id="edit-btn" type="button" aria-pressed="false" hidden>Isi foto</button>
+    <button class="tbtn" id="tema" type="button">Gelap</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="kartu" aria-label="Kartu pos">
+    <div class="kartu-g">
+      <div class="kiri">
+        <p class="label">Kartu pos untuk</p>
+        <h1 id="nama">Sayang</h1>
+        <p class="lead">Di sini ada beberapa kenangan, satu surat, dan tiga permainan kecil. Pilih efek latar di bagian atas sesukamu, lalu gulir ke bawah. Ketuk bagian kosong layar untuk melihat efeknya muncul.</p>
+      </div>
+      <div class="kanan">
+        <div class="top-r">
+          <div class="stamp" aria-hidden="true">
+            <div class="stamp-in">
+              <span>KENANGAN</span>
+              <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.3 3 5 6.3 5c2 0 3.7 1.1 4.7 2.7h2C14 6.1 15.700 5 17.700 5 21 5 23.100 8.300 21.600 11.800 19.500 16.400 12 21 12 21z"/></svg>
+              <span>SELAMANYA</span>
+            </div>
+          </div>
+          <svg class="pm" viewBox="0 0 230 120" role="img" aria-label="Cap pos bertanggal hari ini">
+            <defs><path id="pmPath" d="M60,60 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"/></defs>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="60" cy="60" r="27" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text font-size="10.500" letter-spacing="1"><textPath href="#pmPath" id="pm-ring" textLength="244" lengthAdjust="spacing">POS KENANGAN</textPath></text>
+            <text id="pm-day" x="60" y="65" text-anchor="middle" font-size="14" font-weight="500">12/10</text>
+            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M116,38 q10,-8 20,0 t20,0 t20,0 t20,0 t20,0"/>
+              <path d="M116,50 q10,-8 20,0 t20,0 t20,0 t20,0 t20,0"/>
+              <path d="M116,62 q10,-8 20,0 t20,0 t20,0 t20,0 t20,0"/>
+              <path d="M116,74 q10,-8 20,0 t20,0 t20,0 t20,0 t20,0"/>
+            </g>
+          </svg>
+        </div>
+        <div class="alamat">
+          <p><span>Untuk</span><b id="a-untuk">Sayang</b></p>
+          <p><span>Dari</span><b id="a-dari">Mirza</b></p>
+          <p><span>Alamat</span><b>Selalu di sebelahku</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hitung-w" id="hitung-w">
+    <p class="label">Sudah bersama selama</p>
+    <div class="hitung" role="timer" aria-label="Lama kebersamaan">
+      <div><b id="c-d">0</b><small>Hari</small></div>
+      <div><b id="c-h">0</b><small>Jam</small></div>
+      <div><b id="c-m">0</b><small>Menit</small></div>
+      <div><b id="c-s">0</b><small>Detik</small></div>
+    </div>
+  </div>
+
+  <section class="sec" id="kenangan">
+    <h2>Kenangan kita</h2>
+    <p class="sub">Beberapa momen yang masih sering aku putar ulang di kepala.</p>
+    <ol class="tl" id="tl"></ol>
+  </section>
+
+  <section class="sec" id="surat-s">
+    <h2 id="surat-h">Sebuah surat</h2>
+    <p class="sub">Ditulis tangan, versi layar.</p>
+    <div class="surat" id="surat"></div>
+  </section>
+
+  <section class="sec" id="main">
+    <h2>Main dulu</h2>
+    <p class="sub">Tiga permainan kecil. Menang di salah satunya untuk membuka hadiah di bagian bawah.</p>
+    <div class="tabs" role="tablist" aria-label="Pilih permainan">
+      <button class="tab" role="tab" id="t-match" aria-selected="true" aria-controls="p-match" type="button">Pasangkan</button>
+      <button class="tab" role="tab" id="t-catch" aria-selected="false" aria-controls="p-catch" type="button">Tangkap hati</button>
+      <button class="tab" role="tab" id="t-quiz" aria-selected="false" aria-controls="p-quiz" type="button">Kuis kita</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-match" aria-labelledby="t-match" data-nofx>
+      <h3>Pasangkan kenangan</h3>
+      <p class="how">Buka dua kartu. Kalau gambarnya sama, pasangannya tetap terbuka.</p>
+      <div class="mgrid" id="mgrid"></div>
+      <p class="status" id="m-status" aria-live="polite">Langkah: 0</p>
+      <button class="btn ghost" id="m-reset" type="button">Acak ulang</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-catch" aria-labelledby="t-catch" data-nofx hidden>
+      <h3>Tangkap hati</h3>
+      <p class="how" id="g-how">Geser keranjang dengan jari atau mouse (atau tombol panah). Hati +1, bintang +3, duri -3. Waktunya 30 detik.</p>
+      <div class="hud"><span>Skor <b id="g-score">0</b></span><span>Sisa <b id="g-time">30</b> dtk</span></div>
+      <canvas id="game" tabindex="0" aria-label="Area permainan tangkap hati"></canvas>
+      <div class="g-act"><button class="btn" id="g-start" type="button">Mulai</button></div>
+      <p class="status" id="g-status" aria-live="polite"></p>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-quiz" aria-labelledby="t-quiz" data-nofx hidden>
+      <h3>Seberapa hafal kamu tentang kita</h3>
+      <div id="quiz"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="hadiah">
+    <h2>Hadiah</h2>
+    <p class="sub" id="h-sub">Menangkan satu permainan di atas untuk membukanya.</p>
+    <div class="kupon" id="kupon" data-state="terkunci">
+      <div class="k-l">
+        <p class="k-lab">Kupon</p>
+        <h3 id="k-j">Masih terkunci</h3>
+        <p id="k-i">Selesaikan salah satu permainan dulu.</p>
+      </div>
+      <div class="k-r" id="k-s">Terkunci</div>
+    </div>
+  </section>
+
+  <footer class="foot"><span id="f-dari">Dari Mirza</span><span id="f-tgl"></span></footer>
+</main>
+
+<div class="editbar" id="editbar" hidden>
+  <div class="editbar-in">
+    <p id="e-status" aria-live="polite">Mode isi foto. Tambah atau hapus foto di tiap kenangan, lalu tekan Simpan.</p>
+    <button class="btn ghost" id="e-batal" type="button">Batal</button>
+    <button class="btn" id="e-simpan" type="button" disabled>Simpan</button>
+    <button class="btn ghost" id="e-selesai" type="button">Selesai</button>
+  </div>
+</div>
+<input type="file" id="e-file" accept="image/*" multiple hidden>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Lihat foto" hidden>
+  <img id="lb-img" alt="">
+  <div class="lb-bar">
+    <button class="btn ghost" id="lb-prev" type="button">Sebelumnya</button>
+    <span id="lb-n"></span>
+    <button class="btn ghost" id="lb-next" type="button">Berikutnya</button>
+    <button class="btn" id="lb-x" type="button">Tutup</button>
+  </div>
+</div>
+
+<script src="fotos/data.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ================= ISI HALAMAN: ganti teks di bawah ini dengan kisah kalian ================= */
+  var CONFIG = {
+    nama: 'Sayang',
+    dari: 'Mirza',
+    mulai: '2026-10-01T00:00:00+07:00',
+    kenangan: [
+      { id: 'k1', tgl: 'Okt 2026', judul: 'Hari pertama kita bertemu', teks: 'Awalnya cuma saling sapa. Aku belum tahu hari itu akan jadi awal dari cerita sepanjang ini.', cap: 'Awal semuanya', foto: '' },
+      { id: 'k2', tgl: 'Nov 2026', judul: 'Obrolan yang tidak mau selesai', teks: 'Dari pagi sampai lewat tengah malam, topiknya ada saja. Aku mulai menunggu notifikasi darimu lebih dari yang mau kuakui.', cap: 'Kapan pun kamu balas', foto: '' },
+      { id: 'k3', tgl: 'Des 2026', judul: 'Jalan berdua yang pertama', teks: 'Tidak ada rencana besar. Cukup jalan, makan, dan tertawa pada hal-hal kecil. Hari itu rasanya cepat sekali habis.', cap: 'Berdua saja', foto: '' },
+      { id: 'k4', tgl: 'Jan 2027', judul: 'Hari ketika semuanya terasa pasti', teks: 'Tidak ada kejadian spesial. Hanya satu momen sederhana yang membuatku yakin ingin terus bersamamu.', cap: 'Yang paling kuingat', foto: '' }
+    ],
+    suratJudul: 'Untuk kamu',
+    surat: [
+      'Aku bukan orang yang pandai merangkai kata, jadi aku bikin halaman ini supaya kamu bisa membacanya kapan saja.',
+      'Terima kasih sudah sabar, sudah mau mendengar, dan sudah jadi tempat paling nyaman untuk pulang.',
+      'Semoga kenangan di halaman ini terus bertambah panjang.'
+    ],
+    pasangan: [
+      { i: '🎬', n: 'Nonton' }, { i: '🍜', n: 'Makan' }, { i: '🌧️', n: 'Hujan' },
+      { i: '🎧', n: 'Lagu' }, { i: '📸', n: 'Foto' }, { i: '🌙', n: 'Malam' }
+    ],
+    targetTangkap: 20,
+    kuis: [
+      { q: 'Makanan yang paling sering kita pesan berdua?', o: ['Bakso', 'Mie ayam', 'Nasi goreng', 'Seblak'], a: 0 },
+      { q: 'Film pertama yang kita tonton bersama?', o: ['Film komedi', 'Film horor', 'Film romantis', 'Film animasi'], a: 2 },
+      { q: 'Siapa yang pertama kali bilang rindu?', o: ['Aku', 'Kamu', 'Bersamaan', 'Lupa'], a: 0 },
+      { q: 'Tempat yang paling ingin kita datangi bareng?', o: ['Pantai', 'Gunung', 'Kota tua', 'Kafe kecil'], a: 0 },
+      { q: 'Apa yang paling aku suka dari kamu?', o: ['Tawamu', 'Sabarmu', 'Ceritamu', 'Semuanya'], a: 3 }
+    ],
+    lulusKuis: 3,
+    hadiah: {
+      judul: 'Satu hari penuh, bebas pilih',
+      isi: 'Berlaku untuk satu hari: makan, nonton, atau cuma duduk berdua. Semuanya aku yang traktir. Tukarkan langsung kepada pembuatnya.'
+    }
+  };
+  /* ================= akhir bagian isi ================= */
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function mkEl(tag, props) {
+    var e = document.createElement(tag);
+    if (props) for (var k in props) {
+      if (k === 'class') e.className = props[k];
+      else if (k === 'text') e.textContent = props[k];
+      else e.setAttribute(k, props[k]);
+    }
+    for (var i = 2; i < arguments.length; i++) e.append(arguments[i]);
+    return e;
+  }
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  /* ---------- isi teks ---------- */
+  var BULAN = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+  var now = new Date();
+  var tglStr = now.getDate() + ' ' + BULAN[now.getMonth()] + ' ' + now.getFullYear();
+  $('#nama').textContent = CONFIG.nama;
+  $('#a-untuk').textContent = CONFIG.nama;
+  $('#a-dari').textContent = CONFIG.dari;
+  $('#pm-ring').textContent = 'POS KENANGAN · ' + tglStr + ' ·';
+  $('#pm-day').textContent = now.getDate() + '/' + (now.getMonth() + 1);
+  $('#f-dari').textContent = 'Dari ' + CONFIG.dari;
+  $('#f-tgl').textContent = 'Dikirim ' + tglStr;
+  $('#surat-h').textContent = CONFIG.suratJudul;
+  document.title = 'Kartu Pos Kenangan';
+
+  CONFIG.kenangan.forEach(function (k, i) {
+    var t = mkEl('div', { class: 'tl-t' },
+      mkEl('p', { class: 'tl-d', text: k.tgl }),
+      mkEl('h3', { text: k.judul }),
+      mkEl('p', { text: k.teks }));
+    var gal = mkEl('div', { class: 'galeri' });
+    gal.setAttribute('data-id', k.id);
+    $('#tl').append(mkEl('li', null, t, gal));
+  });
+
+  CONFIG.surat.forEach(function (p) { $('#surat').append(mkEl('p', { text: p })); });
+  $('#surat').append(mkEl('p', { class: 'ttd', text: '— ' + CONFIG.dari }));
+
+  /* ---------- penghitung ---------- */
+  var mulai = new Date(CONFIG.mulai).getTime();
+  if (isNaN(mulai)) { $('#hitung-w').hidden = true; }
+  else {
+    var tick = function () {
+      var s = Math.max(0, Math.floor((Date.now() - mulai) / 1000));
+      $('#c-d').textContent = Math.floor(s / 86400);
+      $('#c-h').textContent = Math.floor(s % 86400 / 3600);
+      $('#c-m').textContent = Math.floor(s % 3600 / 60);
+      $('#c-s').textContent = s % 60;
+    };
+    tick(); setInterval(tick, 1000);
+  }
+
+  /* ---------- tema ---------- */
+  var root = document.documentElement;
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var pal = {};
+  function css(n) { return getComputedStyle(root).getPropertyValue(n).trim(); }
+  function readPal() { pal = { stamp: css('--stamp'), sea: css('--sea'), glow: css('--glow'), petal: css('--petal'), ink: css('--ink'), card: css('--card'), line: css('--line') }; }
+  function isDark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : mq.matches; }
+  function temaLabel() { $('#tema').textContent = isDark() ? 'Terang' : 'Gelap'; }
+  var savedTema = store.get('kpk-tema');
+  if (savedTema === 'light' || savedTema === 'dark') root.setAttribute('data-theme', savedTema);
+  readPal(); temaLabel();
+  $('#tema').addEventListener('click', function () {
+    var n = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', n); store.set('kpk-tema', n);
+    readPal(); temaLabel(); gdraw();
+  });
+  if (mq.addEventListener) mq.addEventListener('change', function () { readPal(); temaLabel(); gdraw(); });
+
+  /* ---------- efek latar ---------- */
+  var cv = $('#fx'), ctx = cv.getContext('2d');
+  var FX = { mode: 'none', p: [], acc: 0, w: 0, h: 0, last: 0 };
+  var RATE = { petals: 3, hearts: 1.6, stars: 1.1, confetti: 12 };
+  function fxSize() {
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    FX.w = window.innerWidth; FX.h = window.innerHeight;
+    cv.width = Math.round(FX.w * d); cv.height = Math.round(FX.h * d);
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  function heart(c, x, y, s) {
+    c.beginPath();
+    c.moveTo(x, y + s);
+    c.bezierCurveTo(x - s * 1.4, y - s * 0.1, x - s * 0.6, y - s * 1.0, x, y - s * 0.35);
+    c.bezierCurveTo(x + s * 0.6, y - s * 1.0, x + s * 1.4, y - s * 0.1, x, y + s);
+    c.closePath();
+  }
+  function mk(mode, burst, x, y) {
+    var p = { mode: mode, burst: !!burst, x: 0, y: 0, vx: 0, vy: 0, r: 0, rot: rnd(0, 6.28), vr: rnd(-3, 3), t: 0, max: 0, ph: rnd(0, 6.28), c: pal.stamp };
+    if (burst) {
+      var a = rnd(0, 6.283), sp = rnd(70, 200);
+      p.x = x; p.y = y; p.vx = Math.cos(a) * sp; p.vy = Math.sin(a) * sp - 60; p.max = rnd(1.6, 2.8);
+      if (mode === 'hearts') { p.vx *= 0.5; p.vy = -rnd(70, 170); }
+    }
+    switch (mode) {
+      case 'petals':
+        p.r = rnd(6, 12); p.c = Math.random() < 0.5 ? pal.petal : pal.stamp;
+        if (!burst) { p.x = rnd(0, FX.w); p.y = -20; p.vx = rnd(8, 30); p.vy = rnd(35, 75); }
+        break;
+      case 'fireflies':
+        p.r = rnd(1.6, 3.2); p.c = Math.random() < 0.75 ? pal.glow : pal.sea;
+        if (!burst) { var b = rnd(0, 6.28); p.x = rnd(0, FX.w); p.y = rnd(0, FX.h); p.vx = Math.cos(b) * 18; p.vy = Math.sin(b) * 18; }
+        break;
+      case 'hearts':
+        p.r = rnd(6, 13); p.c = Math.random() < 0.6 ? pal.stamp : pal.petal;
+        if (!burst) { p.x = rnd(0, FX.w); p.y = FX.h + 16; p.vx = 0; p.vy = -rnd(45, 95); p.max = (FX.h + 40) / -p.vy; }
+        break;
+      case 'stars':
+        p.r = rnd(1, 2); p.c = pal.glow; p.x = rnd(FX.w * 0.3, FX.w + 40); p.y = rnd(-40, FX.h * 0.4);
+        var s2 = rnd(380, 560); p.vx = -s2 * 0.7; p.vy = s2 * 0.5; p.max = rnd(0.9, 1.5);
+        break;
+      case 'confetti':
+        p.r = rnd(4, 8); p.c = [pal.stamp, pal.sea, pal.glow, pal.petal][Math.floor(rnd(0, 4))];
+        if (!burst) { p.x = rnd(0, FX.w); p.y = -12; p.vx = rnd(-30, 30); p.vy = rnd(70, 150); }
+        break;
+    }
+    return p;
+  }
+  function upd(p, dt) {
+    p.t += dt;
+    switch (p.mode) {
+      case 'petals':
+        if (p.burst) { p.vy += 140 * dt; p.vx *= 1 - 1.2 * dt; }
+        p.x += (p.vx + (p.burst ? 0 : Math.sin(p.ph + p.t * 1.6) * 22)) * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+        break;
+      case 'fireflies':
+        if (p.burst) { p.vx *= 1 - 1.5 * dt; p.vy *= 1 - 1.5 * dt; }
+        else {
+          p.vx += rnd(-1, 1) * 60 * dt; p.vy += rnd(-1, 1) * 60 * dt;
+          var s = Math.hypot(p.vx, p.vy); if (s > 26) { p.vx *= 26 / s; p.vy *= 26 / s; }
+        }
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (!p.burst) { if (p.x < -10) p.x = FX.w + 10; if (p.x > FX.w + 10) p.x = -10; if (p.y < -10) p.y = FX.h + 10; if (p.y > FX.h + 10) p.y = -10; }
+        break;
+      case 'hearts':
+        p.x += (p.vx + Math.sin(p.ph + p.t * 2) * 18) * dt; p.y += p.vy * dt;
+        if (p.burst) p.vy *= 1 - 0.6 * dt;
+        break;
+      case 'stars': p.x += p.vx * dt; p.y += p.vy * dt; break;
+      case 'confetti':
+        if (p.burst) { p.vy += 260 * dt; p.vx *= 1 - 0.9 * dt; }
+        p.x += (p.vx + (p.burst ? 0 : Math.sin(p.ph + p.t * 3) * 30)) * dt; p.y += p.vy * dt; p.rot += p.vr * dt * 2;
+        break;
+    }
+  }
+  function dead(p) {
+    if (p.max && p.t > p.max) return true;
+    if (p.mode === 'fireflies' && !p.burst) return false;
+    return p.y > FX.h + 30 || (p.mode === 'hearts' && p.y < -40) || p.x < -80 || p.x > FX.w + 80;
+  }
+  function draw(p) {
+    var c = ctx, a = 1;
+    if (p.max) a = Math.max(0, Math.min(1, (p.max - p.t) / (p.max * 0.45)));
+    c.save();
+    c.globalAlpha = a * (p.mode === 'hearts' ? 0.8 : p.mode === 'petals' ? 0.9 : 1);
+    switch (p.mode) {
+      case 'petals':
+        c.translate(p.x, p.y); c.rotate(p.rot); c.fillStyle = p.c;
+        c.beginPath(); c.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, 6.283); c.fill();
+        break;
+      case 'fireflies':
+        c.globalAlpha = a * (0.45 + 0.55 * Math.abs(Math.sin(p.ph + p.t * 1.8)));
+        c.shadowColor = p.c; c.shadowBlur = 14; c.fillStyle = p.c;
+        c.beginPath(); c.arc(p.x, p.y, p.r, 0, 6.283); c.fill();
+        break;
+      case 'hearts':
+        c.fillStyle = p.c; heart(c, p.x, p.y, p.r); c.fill();
+        break;
+      case 'stars':
+        var L = 90, n = 8, sp = Math.hypot(p.vx, p.vy), ux = p.vx / sp, uy = p.vy / sp;
+        c.lineCap = 'round'; c.strokeStyle = p.c;
+        for (var i = 0; i < n; i++) {
+          c.globalAlpha = a * (1 - i / n) * 0.9; c.lineWidth = p.r * (1 - i / n) * 1.6 + 0.4;
+          c.beginPath(); c.moveTo(p.x - ux * L / n * i, p.y - uy * L / n * i); c.lineTo(p.x - ux * L / n * (i + 1), p.y - uy * L / n * (i + 1)); c.stroke();
+        }
+        c.globalAlpha = a; c.fillStyle = p.c; c.beginPath(); c.arc(p.x, p.y, p.r + 0.6, 0, 6.283); c.fill();
+        break;
+      case 'confetti':
+        c.translate(p.x, p.y); c.rotate(p.rot); c.scale(1, Math.abs(Math.cos(p.ph + p.t * 4)) * 0.8 + 0.2);
+        c.fillStyle = p.c; c.fillRect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+        break;
+    }
+    c.restore();
+  }
+  function fxFrame(ts) {
+    requestAnimationFrame(fxFrame);
+    var dt = Math.min((ts - FX.last) / 1000 || 0, 0.05); FX.last = ts;
+    if (document.hidden) return;
+    ctx.clearRect(0, 0, FX.w, FX.h);
+    var m = FX.mode;
+    if (m === 'fireflies') {
+      var n = 0; FX.p.forEach(function (p) { if (p.mode === 'fireflies' && !p.burst) n++; });
+      for (; n < 32; n++) FX.p.push(mk('fireflies'));
+    } else if (m !== 'none' && FX.p.length < 260) {
+      FX.acc += dt * RATE[m];
+      while (FX.acc >= 1) { FX.acc -= 1; FX.p.push(mk(m)); }
+    }
+    for (var i = FX.p.length - 1; i >= 0; i--) {
+      var p = FX.p[i]; upd(p, dt);
+      if (dead(p)) { FX.p.splice(i, 1); continue; }
+      draw(p);
+    }
+  }
+  function setMode(m) {
+    FX.mode = m; FX.acc = 0;
+    FX.p = FX.p.filter(function (p) { return p.burst; });
+    var pre = { petals: 18, hearts: 8 }[m] || 0;
+    for (var i = 0; i < pre; i++) {
+      var p = mk(m); p.y = rnd(0, FX.h * 0.9);
+      if (m === 'hearts') p.max = (p.y + 40) / -p.vy;
+      FX.p.push(p);
+    }
+    $$('.chip').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-fx') === m ? 'true' : 'false'); });
+  }
+  function burst(mode, x, y, n) {
+    var m = mode === 'stars' ? 'fireflies' : mode;
+    for (var i = 0; i < n; i++) FX.p.push(mk(m, true, x, y));
+  }
+  function celebrate() {
+    var x = FX.w / 2;
+    burst('confetti', x, FX.h * 0.35, 70); burst('hearts', x, FX.h * 0.5, 14);
+  }
+  fxSize(); window.addEventListener('resize', fxSize);
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var savedFx = store.get('kpk-fx');
+  var valid = ['petals', 'fireflies', 'hearts', 'stars', 'confetti', 'none'];
+  setMode(valid.indexOf(savedFx) > -1 ? savedFx : (reduce ? 'none' : 'petals'));
+  $('#chips').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    var m = b.getAttribute('data-fx'); setMode(m); store.set('kpk-fx', m);
+  });
+  document.addEventListener('pointerdown', function (e) {
+    if (FX.mode === 'none') return;
+    if (e.target.closest('button,a,[data-nofx],.bar,.galeri,.editbar,.lb')) return;
+    burst(FX.mode, e.clientX, e.clientY, 8);
+  });
+  requestAnimationFrame(fxFrame);
+
+  /* ---------- hadiah ---------- */
+  var unlocked = store.get('kpk-hadiah') === '1';
+  function renderHadiah() {
+    var k = $('#kupon');
+    if (unlocked) {
+      k.setAttribute('data-state', 'terbuka');
+      $('#k-j').textContent = CONFIG.hadiah.judul; $('#k-i').textContent = CONFIG.hadiah.isi;
+      $('#k-s').textContent = 'Terbuka'; $('#h-sub').textContent = 'Kamu sudah memenangkannya. Ini milikmu.';
+    }
+  }
+  function unlock() {
+    celebrate();
+    if (unlocked) return;
+    unlocked = true; store.set('kpk-hadiah', '1'); renderHadiah();
+  }
+  renderHadiah();
+
+  /* ---------- tab permainan ---------- */
+  var TABS = ['match', 'catch', 'quiz'];
+  function showTab(id) {
+    TABS.forEach(function (t) {
+      var on = t === id;
+      $('#t-' + t).setAttribute('aria-selected', on ? 'true' : 'false');
+      $('#p-' + t).hidden = !on;
+    });
+    if (id === 'catch') gsize();
+  }
+  TABS.forEach(function (t) { $('#t-' + t).addEventListener('click', function () { showTab(t); }); });
+
+  /* ---------- permainan 1: pasangkan ---------- */
+  var M = { first: null, lock: false, moves: 0, found: 0 };
+  function buildMatch() {
+    var grid = $('#mgrid'); grid.replaceChildren();
+    M.first = null; M.lock = false; M.moves = 0; M.found = 0;
+    var deck = [];
+    CONFIG.pasangan.forEach(function (p, i) { deck.push({ k: i, i: p.i, n: p.n }); deck.push({ k: i, i: p.i, n: p.n }); });
+    shuffle(deck).forEach(function (d) {
+      var b = mkEl('button', { class: 'mcard', type: 'button', 'aria-label': 'Kartu tertutup' });
+      b._k = d.k;
+      var front = mkEl('span', { class: 'face front' }, d.i, mkEl('small', { text: d.n }));
+      b.append(mkEl('span', { class: 'in' }, mkEl('span', { class: 'face back' }), front));
+      b.addEventListener('click', function () { flip(b, d); });
+      b._d = d; grid.append(b);
+    });
+    $('#m-status').textContent = 'Langkah: 0';
+  }
+  function flip(b, d) {
+    if (M.lock || b.classList.contains('open') || b.classList.contains('done')) return;
+    b.classList.add('open'); b.setAttribute('aria-label', d.n);
+    if (!M.first) { M.first = b; return; }
+    var a = M.first; M.first = null; M.moves++;
+    $('#m-status').textContent = 'Langkah: ' + M.moves;
+    if (a._k === b._k) {
+      [a, b].forEach(function (x) { x.classList.remove('open'); x.classList.add('done'); });
+      M.found++;
+      if (M.found === CONFIG.pasangan.length) {
+        $('#m-status').textContent = 'Semua pasangan ketemu dalam ' + M.moves + ' langkah. Kayak kita.';
+        unlock();
+      }
+    } else {
+      M.lock = true;
+      setTimeout(function () {
+        [a, b].forEach(function (x) { x.classList.remove('open'); x.setAttribute('aria-label', 'Kartu tertutup'); });
+        M.lock = false;
+      }, 750);
+    }
+  }
+  $('#m-reset').addEventListener('click', buildMatch);
+  buildMatch();
+
+  /* ---------- permainan 2: tangkap hati ---------- */
+  var cvG = $('#game'), g = cvG.getContext('2d');
+  var GW = 0, GH = 0;
+  var G = { running: false, score: 0, time: 30, items: [], bx: 0, bw: 76, spawn: 0, last: 0, raf: 0, flash: 0 };
+  function gsize() {
+    var r = cvG.getBoundingClientRect(); if (!r.width) return;
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    GW = Math.round(r.width); GH = Math.round(r.height);
+    cvG.width = GW * d; cvG.height = GH * d; g.setTransform(d, 0, 0, d, 0, 0);
+    if (!G.bx) G.bx = GW / 2;
+    G.bx = Math.max(G.bw / 2, Math.min(GW - G.bw / 2, G.bx));
+    gdraw();
+  }
+  function star(c, x, y, r) {
+    c.beginPath();
+    for (var i = 0; i < 10; i++) { var rr = i % 2 ? r * 0.45 : r, an = -Math.PI / 2 + i * Math.PI / 5; c.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr); }
+    c.closePath();
+  }
+  function thorn(c, x, y, r) {
+    c.beginPath();
+    for (var i = 0; i < 16; i++) { var rr = i % 2 ? r * 0.6 : r, an = i * Math.PI / 8; c.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr); }
+    c.closePath();
+  }
+  function gitem(it) {
+    g.save(); g.translate(it.x, it.y);
+    if (it.t === 'h') { g.fillStyle = pal.stamp; heart(g, 0, 0, it.r); g.fill(); }
+    else if (it.t === 's') { g.fillStyle = pal.glow; star(g, 0, 0, it.r * 1.15); g.fill(); }
+    else { g.fillStyle = pal.ink; thorn(g, 0, 0, it.r); g.fill(); }
+    g.restore();
+  }
+  function gdraw() {
+    if (!GW) return;
+    g.clearRect(0, 0, GW, GH);
+    if (G.flash > 0) { g.fillStyle = pal.stamp; g.globalAlpha = Math.min(0.25, G.flash); g.fillRect(0, 0, GW, GH); g.globalAlpha = 1; }
+    var items = G.running ? G.items : [
+      { t: 'h', x: GW * 0.22, y: GH * 0.2, r: 12 }, { t: 's', x: GW * 0.7, y: GH * 0.34, r: 11 },
+      { t: 'h', x: GW * 0.45, y: GH * 0.52, r: 12 }, { t: 't', x: GW * 0.82, y: GH * 0.68, r: 11 }
+    ];
+    items.forEach(gitem);
+    var by = GH - 26, bx = G.bx, hw = G.bw / 2;
+    g.fillStyle = pal.sea; g.beginPath();
+    g.moveTo(bx - hw, by - 12); g.lineTo(bx + hw, by - 12); g.lineTo(bx + hw - 10, by + 14); g.lineTo(bx - hw + 10, by + 14); g.closePath(); g.fill();
+    g.fillStyle = pal.ink; g.globalAlpha = 0.9; g.fillRect(bx - hw - 3, by - 16, G.bw + 6, 6); g.globalAlpha = 1;
+  }
+  function addItem() {
+    var r = Math.random(), t = r < 0.68 ? 'h' : r < 0.82 ? 's' : 't';
+    G.items.push({ t: t, x: rnd(16, GW - 16), y: -16, r: t === 't' ? 11 : 12, v: rnd(110, 180) + (30 - G.time) * 4 });
+  }
+  function gloop(ts) {
+    if (!G.running) return;
+    var dt = Math.min((ts - G.last) / 1000, 0.05); G.last = ts;
+    G.time -= dt; G.spawn -= dt; if (G.flash > 0) G.flash -= dt;
+    if (G.spawn <= 0) { addItem(); G.spawn = Math.max(0.28, 0.6 - (30 - G.time) * 0.01) + rnd(0, 0.25); }
+    var by = GH - 26;
+    for (var i = G.items.length - 1; i >= 0; i--) {
+      var it = G.items[i]; it.y += it.v * dt;
+      if (it.y + it.r >= by - 14 && it.y - it.r <= by + 14 && Math.abs(it.x - G.bx) <= G.bw / 2 + it.r * 0.4) {
+        if (it.t === 'h') G.score += 1; else if (it.t === 's') G.score += 3; else { G.score = Math.max(0, G.score - 3); G.flash = 0.35; }
+        G.items.splice(i, 1);
+      } else if (it.y > GH + 20) G.items.splice(i, 1);
+    }
+    $('#g-score').textContent = G.score; $('#g-time').textContent = Math.max(0, Math.ceil(G.time));
+    gdraw();
+    if (G.time <= 0) gend(); else G.raf = requestAnimationFrame(gloop);
+  }
+  function gstart() {
+    gsize();
+    G.running = true; G.score = 0; G.time = 30; G.items = []; G.spawn = 0.2; G.flash = 0;
+    $('#g-status').textContent = ''; $('#g-start').hidden = true;
+    $('#g-score').textContent = '0'; $('#g-time').textContent = '30';
+    cvG.focus({ preventScroll: true });
+    G.last = performance.now(); G.raf = requestAnimationFrame(gloop);
+  }
+  function gend() {
+    G.running = false; cancelAnimationFrame(G.raf); G.items = []; gdraw();
+    $('#g-start').hidden = false; $('#g-start').textContent = 'Main lagi';
+    if (G.score >= CONFIG.targetTangkap) {
+      $('#g-status').textContent = 'Skor ' + G.score + '. Hatimu penuh. Hadiahnya terbuka.'; unlock();
+    } else {
+      $('#g-status').textContent = 'Skor ' + G.score + '. Butuh ' + CONFIG.targetTangkap + ' untuk membuka hadiah. Coba lagi?';
+    }
+  }
+  function gmove(x) {
+    var r = cvG.getBoundingClientRect();
+    G.bx = Math.max(G.bw / 2, Math.min(GW - G.bw / 2, x - r.left));
+    if (!G.running) gdraw();
+  }
+  cvG.addEventListener('pointermove', function (e) { gmove(e.clientX); });
+  cvG.addEventListener('pointerdown', function (e) { gmove(e.clientX); });
+  cvG.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') G.bx -= 30; else if (e.key === 'ArrowRight') G.bx += 30; else return;
+    G.bx = Math.max(G.bw / 2, Math.min(GW - G.bw / 2, G.bx)); e.preventDefault();
+    if (!G.running) gdraw();
+  });
+  $('#g-start').addEventListener('click', gstart);
+  if (window.ResizeObserver) new ResizeObserver(function () { if (!G.running) gsize(); }).observe(cvG);
+
+  /* ---------- permainan 3: kuis ---------- */
+  var Q = CONFIG.kuis, qi = 0, qs = 0;
+  var BENAR = ['Benar. Kamu ingat.', 'Tepat sekali.', 'Betul. Aku senang kamu hafal.', 'Itu dia.', 'Benar, sesuai dugaanku.'];
+  function qrender() {
+    var box = $('#quiz'); box.replaceChildren();
+    if (qi >= Q.length) {
+      var msg = qs >= Q.length - 1 ? 'Kamu hafal hampir semuanya.' : qs >= CONFIG.lulusKuis ? 'Lumayan. Sisanya biar aku ceritakan lagi.' : 'Tidak apa-apa. Berarti kita perlu bikin kenangan baru.';
+      var again = mkEl('button', { class: 'btn ghost', type: 'button', text: 'Ulangi kuis' });
+      again.addEventListener('click', function () { qi = 0; qs = 0; qrender(); });
+      box.append(mkEl('p', { class: 'q-meta', text: 'Hasil' }), mkEl('p', { class: 'big', text: qs + ' / ' + Q.length }), mkEl('p', { class: 'status', text: msg }), again);
+      if (qs >= CONFIG.lulusKuis) unlock();
+      return;
+    }
+    var q = Q[qi], list = mkEl('div', { class: 'opts' });
+    var fb = mkEl('p', { class: 'q-fb', 'aria-live': 'polite' });
+    var next = mkEl('button', { class: 'btn', type: 'button', text: qi === Q.length - 1 ? 'Lihat hasil' : 'Lanjut' });
+    next.hidden = true;
+    next.addEventListener('click', function () { qi++; qrender(); });
+    q.o.forEach(function (t, i) {
+      var b = mkEl('button', { class: 'opt', type: 'button', text: t });
+      b.addEventListener('click', function () {
+        $$('.opt', list).forEach(function (x, j) { x.disabled = true; if (j === q.a) x.classList.add('ok'); });
+        if (i === q.a) { qs++; fb.textContent = BENAR[qi % BENAR.length]; }
+        else { b.classList.add('no'); fb.textContent = 'Hampir. Jawabannya: ' + q.o[q.a] + '.'; }
+        next.hidden = false;
+      });
+      list.append(b);
+    });
+    box.append(mkEl('p', { class: 'q-meta', text: 'Pertanyaan ' + (qi + 1) + ' dari ' + Q.length }), mkEl('h4', { text: q.q }), list, fb, next);
+  }
+  qrender();
+
+  /* ---------- foto kenangan ---------- */
+  var FOTO_INDEX = 'fotos/index.json', MAX_FOTO = 12;
+  var P = { items: {}, base: {}, edit: false, dirty: false, busy: false, art: null, target: null };
+  CONFIG.kenangan.forEach(function (k) { P.items[k.id] = []; P.base[k.id] = []; });
+  function cloneList(o) {
+    var r = {};
+    Object.keys(o).forEach(function (id) { r[id] = o[id].map(function (x) { return { f: x.f, url: x.url }; }); });
+    return r;
+  }
+  function fstatus(t) { $('#e-status').textContent = t; }
+  function paths(list) { return list.map(function (x) { return x.f; }).join('|'); }
+  function isDirty() {
+    return CONFIG.kenangan.some(function (k) {
+      return P.items[k.id].some(function (x) { return x.blob; }) || paths(P.items[k.id]) !== paths(P.base[k.id]);
+    });
+  }
+  function refresh() {
+    P.dirty = isDirty();
+    $('#e-simpan').disabled = !P.dirty || P.busy;
+    fstatus(P.dirty ? 'Ada perubahan belum disimpan.' : 'Mode isi foto. Tambah atau hapus foto di tiap kenangan, lalu tekan Simpan.');
+    renderGaleri();
+  }
+  function renderGaleri() {
+    CONFIG.kenangan.forEach(function (k) {
+      var gal = $('.galeri[data-id="' + k.id + '"]'); if (!gal) return;
+      gal.replaceChildren();
+      var list = P.items[k.id];
+      list.forEach(function (it, idx) {
+        var fig = mkEl('figure', { class: 'foto' });
+        var img = mkEl('img', { src: it.url, alt: k.judul + ', foto ' + (idx + 1), loading: 'lazy', decoding: 'async' });
+        img.addEventListener('click', function () { openLb(k.id, idx); });
+        fig.append(img);
+        if (P.edit) {
+          var del = mkEl('button', { class: 'hapus', type: 'button', text: 'Hapus', 'aria-label': 'Hapus foto ' + (idx + 1) + ' dari ' + k.judul });
+          del.addEventListener('click', function () { removeFoto(k.id, idx); });
+          fig.append(del);
+        }
+        gal.append(fig);
+      });
+      if (!list.length && !P.edit) {
+        var ph = mkEl('figure', { class: 'foto' });
+        ph.append(mkEl('div', { class: 'foto-ph', text: 'Foto kenangan ini belum ada' }));
+        gal.append(ph);
+      }
+      if (P.edit) {
+        var add = mkEl('button', { class: 'tambah', type: 'button' }, mkEl('span', { text: '+ Tambah foto' }), mkEl('small', { text: 'Boleh pilih banyak sekaligus' }));
+        add.addEventListener('click', function () { P.target = k.id; $('#e-file').click(); });
+        gal.append(add);
+      }
+    });
+  }
+  function removeFoto(id, idx) {
+    var it = P.items[id].splice(idx, 1)[0];
+    if (it && it.blob && it.url) URL.revokeObjectURL(it.url);
+    refresh();
+  }
+  function viaImg(file) {
+    return new Promise(function (res, rej) {
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () { URL.revokeObjectURL(u); res(im); };
+      im.onerror = function () { URL.revokeObjectURL(u); rej(new Error('format')); };
+      im.src = u;
+    });
+  }
+  function loadBitmap(file) {
+    if (window.createImageBitmap) return createImageBitmap(file, { imageOrientation: 'from-image' }).catch(function () { return viaImg(file); });
+    return viaImg(file);
+  }
+  function toJpeg(file) {
+    return loadBitmap(file).then(function (bm) {
+      var w = bm.width || bm.naturalWidth, h = bm.height || bm.naturalHeight;
+      var s = Math.min(1, 1280 / Math.max(w, h));
+      var c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(h * s));
+      var x = c.getContext('2d'); x.fillStyle = '#ffffff'; x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(bm, 0, 0, c.width, c.height);
+      if (bm.close) bm.close();
+      return new Promise(function (res, rej) { c.toBlob(function (b) { if (b) res(b); else rej(new Error('encode')); }, 'image/jpeg', 0.82); });
+    });
+  }
+  $('#e-file').addEventListener('change', function (e) {
+    var files = Array.prototype.slice.call(e.target.files || []), id = P.target;
+    e.target.value = '';
+    if (!files.length || !id) return;
+    P.busy = true; fstatus('Memproses ' + files.length + ' foto...');
+    var fail = 0, over = 0;
+    files.reduce(function (p, f) {
+      return p.then(function () {
+        if (P.items[id].length >= MAX_FOTO) { over++; return null; }
+        return toJpeg(f).then(function (b) {
+          var n = 'fotos/' + id + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6) + '.jpg';
+          P.items[id].push({ f: n, url: URL.createObjectURL(b), blob: b });
+        }, function () { fail++; });
+      });
+    }, Promise.resolve()).then(function () {
+      P.busy = false; refresh();
+      if (over) fstatus('Maksimal ' + MAX_FOTO + ' foto per kenangan. Sisanya tidak ditambahkan.');
+      else if (fail) fstatus(fail + ' foto gagal dibaca. Pakai format JPG, PNG, atau WebP.');
+    });
+  });
+  function simpan() {
+    if (P.busy || !P.art) return;
+    var files = {}, index = {};
+    CONFIG.kenangan.forEach(function (k) {
+      index[k.id] = P.items[k.id].map(function (x) { return x.f; });
+      P.items[k.id].forEach(function (x) { if (x.blob) files[x.f] = { content: x.blob, contentType: 'image/jpeg' }; });
+      P.base[k.id].forEach(function (x) { if (index[k.id].indexOf(x.f) < 0) files[x.f] = null; });
+    });
+    files[FOTO_INDEX] = { content: JSON.stringify(index), contentType: 'application/json' };
+    P.busy = true; $('#e-simpan').disabled = true; fstatus('Menyimpan...');
+    P.art.publish(files).then(function () {
+      CONFIG.kenangan.forEach(function (k) { P.items[k.id].forEach(function (x) { delete x.blob; }); });
+      P.base = cloneList(P.items); P.busy = false; refresh();
+      fstatus('Tersimpan. Foto sudah bisa dilihat siapa pun yang membuka halaman ini.');
+    }, function (err) {
+      P.busy = false; $('#e-simpan').disabled = !P.dirty;
+      var c = err && err.code;
+      if (c === 'not_writer' || c === 'not_granted' || c === 'consent_required' || c === 'capability_disabled' || c === 'not_declared') {
+        fstatus('Menyimpan tidak bisa dilakukan di tampilan ini. Buka halaman dari akun pemiliknya, bukan dari tautan publik.');
+      } else if (c === 'too_large') fstatus('Total foto terlalu besar. Kurangi jumlah foto lalu simpan lagi.');
+      else if (c === 'rate_limited') fstatus('Terlalu sering menyimpan. Tunggu sebentar lalu coba lagi.');
+      else if (c === 'conflict') fstatus('Halaman baru saja diperbarui dari tempat lain dan akan dimuat ulang. Ulangi perubahanmu.');
+      else fstatus('Gagal menyimpan. Coba lagi sebentar lagi.');
+    });
+  }
+  function batal() {
+    CONFIG.kenangan.forEach(function (k) { P.items[k.id].forEach(function (x) { if (x.blob && x.url) URL.revokeObjectURL(x.url); }); });
+    P.items = cloneList(P.base); refresh(); fstatus('Perubahan dibatalkan.');
+  }
+  function setEdit(on) {
+    P.edit = on; document.body.classList.toggle('editing', on);
+    $('#editbar').hidden = !on; $('#edit-btn').setAttribute('aria-pressed', on ? 'true' : 'false');
+    refresh();
+  }
+  function tutupEdit() {
+    if (P.dirty) { fstatus('Ada perubahan belum disimpan. Tekan Simpan atau Batal dulu.'); return; }
+    setEdit(false);
+  }
+  $('#edit-btn').addEventListener('click', function () { if (P.edit) tutupEdit(); else setEdit(true); });
+  $('#e-selesai').addEventListener('click', tutupEdit);
+  $('#e-batal').addEventListener('click', batal);
+  $('#e-simpan').addEventListener('click', simpan);
+
+  /* lightbox */
+  var LB = { id: null, i: 0 };
+  function lbShow() {
+    var l = P.items[LB.id] || [];
+    if (!l.length) { lbClose(); return; }
+    LB.i = (LB.i + l.length) % l.length;
+    $('#lb-img').src = l[LB.i].url; $('#lb-img').alt = 'Foto ' + (LB.i + 1) + ' dari ' + l.length;
+    $('#lb-n').textContent = (LB.i + 1) + ' / ' + l.length;
+  }
+  function openLb(id, i) { LB.id = id; LB.i = i; $('#lb').hidden = false; lbShow(); $('#lb-x').focus(); }
+  function lbClose() { $('#lb').hidden = true; $('#lb-img').removeAttribute('src'); }
+  $('#lb-prev').addEventListener('click', function () { LB.i--; lbShow(); });
+  $('#lb-next').addEventListener('click', function () { LB.i++; lbShow(); });
+  $('#lb-x').addEventListener('click', lbClose);
+  $('#lb').addEventListener('click', function (e) { if (e.target === $('#lb')) lbClose(); });
+  document.addEventListener('keydown', function (e) {
+    if ($('#lb').hidden) return;
+    if (e.key === 'Escape') lbClose();
+    else if (e.key === 'ArrowLeft') { LB.i--; lbShow(); }
+    else if (e.key === 'ArrowRight') { LB.i++; lbShow(); }
+  });
+
+  /* muat daftar foto tersimpan, lalu cek siapa yang boleh mengisi */
+  renderGaleri();
+  (window.FOTO_KENANGAN ? Promise.resolve(window.FOTO_KENANGAN) : fetch(FOTO_INDEX, { cache: 'no-cache' })
+    .then(function (r) { return r.ok ? r.json() : {}; })
+    .catch(function () { return {}; }))
+    .then(function (idx) {
+      CONFIG.kenangan.forEach(function (k) {
+        var l = idx && Array.isArray(idx[k.id]) ? idx[k.id] : [];
+        P.items[k.id] = l.filter(function (p) { return typeof p === 'string' && p.indexOf('fotos/') === 0; }).map(function (p) { return { f: p, url: p }; });
+      });
+      P.base = cloneList(P.items); renderGaleri();
+    });
+  function useCap(n) {
+    try { return window.claude && window.claude.use ? window.claude.use(n) : Promise.resolve(null); }
+    catch (e) { return Promise.resolve(null); }
+  }
+  useCap('artifact').then(function (a) {
+    if (!a) return null;
+    P.art = a;
+    return useCap('user').then(function (u) {
+      if (!u) return true;
+      return Promise.all([Promise.resolve(u.isOwner()), Promise.resolve(u.canEdit())]).then(function (r) { return !!(r[0] || r[1]); });
+    }).then(function (ok) { if (ok) $('#edit-btn').hidden = false; });
+  }).catch(function () {});
+
+  window.addEventListener('resize', function () { if (!$('#p-catch').hidden && !G.running) gsize(); });
+})();
+</script>
+
+</body>
+</html>
