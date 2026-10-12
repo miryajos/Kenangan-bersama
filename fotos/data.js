@@ -1,13 +1,13 @@
 window.FOTO_KENANGAN = {
   k1: [
-    "fotos/k1-1.jpg",
-    "fotos/k1-2.jpg",
-    "fotos/k2-1.jpg",
-    "fotos/k2-2.jpg",
-    "fotos/k3-1.jpg",
-    "fotos/k3-2.jpg",
-    "fotos/k4-1.jpg",
-    "fotos/k4-2.jpg"
+    "fotos/../IMG-20261001-WA0059.jpg",
+    "fotos/../IMG-20261001-WA0062.jpg",
+    "fotos/../IMG-20261001-WA0063.jpg",
+    "fotos/../IMG-20261001-WA0076.jpg",
+    "fotos/../IMG-20261001-WA0077.jpg",
+    "fotos/../IMG-20261001-WA0081.jpg",
+    "fotos/../IMG-20261001-WA0088.jpg",
+    "fotos/../IMG-20261001-WA0090.jpg"
   ],
   k2: [],
   k3: [],
